@@ -81,7 +81,6 @@ def j_init():
         weight[word] = 0
 
     haaretz_list, israel_hayom_list = getData()
-    print(len(haaretz_list), len(israel_hayom_list))
     # cleaning out bad words.
     haaretz_list = (cleanse_raw(haaretz_list))
     israel_hayom_list = (cleanse_raw(israel_hayom_list))

@@ -2,17 +2,20 @@ from data.getData import *
 from bagOfWords import *
 from simplifiedBag import *
 from sklearn.model_selection import cross_val_score
-from sklearn import svm, datasets
-bg = bagOfWords()
+from sklearn import svm
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor, ExtraTreeClassifier, ExtraTreeRegressor
+bg = bagOfWords(1000)
 foos = [bg.generate_maj_features, bg.generate_word_len_avg_feature, sentence_len_feature]
 initFoos = [j_init]
-models = ["SVCSpecial","SVC", "LinearSVC", "LinearSVR","NuSCR","NuSVC"]
+models = ["SVCSpecial","SVC", "LinearSVC", "LinearSVR","NuSCR","NuSVC", "TreeRegress","TreeClass","ExTreeClass","ExTreeRegress"]
 algos = [svm.SVC(probability=True, random_state=0),
          svm.SVC(),
          svm.LinearSVC(),
-         svm.LinearSVR(),
-         svm.NuSVR(),
-         svm.NuSVC()]
+         svm.NuSVC(),
+         DecisionTreeRegressor(),
+         DecisionTreeClassifier(),
+         ExtraTreeClassifier(),
+         ExtraTreeRegressor()]
 
 def getElems():
     tr,te,val = getTrainingData()
@@ -37,9 +40,9 @@ def modelSelection():
     i = 1
     for algo in algos:
         print ("##### Running model number %s we are on %s"%(i, models[i-1]))
-        print(set(y))
         algo.fit(x,y)
         print(cross_val_score(algo,xx,yy,scoring="accuracy"))
+        i+=1
 
 def init():
     for foo in initFoos:
