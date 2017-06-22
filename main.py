@@ -9,10 +9,10 @@ foos = [bg.generate_maj_features, bg.generate_word_len_avg_feature, sentence_len
 initFoos = [j_init]
 models = ["SVCSpecial","SVC", "LinearSVC", "LinearSVR","NuSCR","NuSVC", "TreeRegress","TreeClass","ExTreeClass","ExTreeRegress"]
 algos = [
-        # svm.SVC(probability=True, random_state=0),
-         # svm.SVC(),
-         # svm.LinearSVC(),
-         # svm.NuSVC(),
+         svm.SVC(probability=True, random_state=0),
+         svm.SVC(),
+         svm.LinearSVC(),
+         svm.NuSVC(),
          DecisionTreeRegressor(random_state=0),
          DecisionTreeClassifier(random_state=0),
          ExtraTreeClassifier(random_state=0),
@@ -42,9 +42,13 @@ def modelSelection():
     for algo in algos:
         print ("##### Running model number %s we are on %s ######"%(i, models[i-1]))
         algo.fit(x,y)
-        pred = algo.predict(te[0])
-        scores = sum([0 if circ(pred[i]) == y[i] else 1 for i in range(len(pred))]) / len(pred)
-        print(scores)
+        pred = algo.predict(xx)
+        scores = sum([0 if circ(pred[i]) == yy[i] else 1 for i in range(len(pred))]) / len(pred)
+        print("Score for test data%s"%scores)
+
+        pred = algo.predict(xxx)
+        scores = sum([0 if circ(pred[i]) == yyy[i] else 1 for i in range(len(pred))]) / len(pred)
+        print("Score for test data%s" % scores)
         i+=1
 
 def init():
