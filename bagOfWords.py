@@ -41,7 +41,7 @@ def cleanse_raw(data):
         data[i] = lower_case
     return data
 
-def get_words(self, sentences):
+def get_words(sentences):
     """
     split each sentence into words, and returns merged list
     of all words from all sentences, with duplicates.
@@ -61,7 +61,6 @@ class bagOfWords:
         self.haaretz_avg, self.israel_avg = self.find_average_word_length(self.haaretz, self.israel)
 
     def generate_maj_features(self, sentence):
-        print(sentence)
         features_vec = np.zeros(len(self.majors))
         table = {}
         for i in range(len(self.majors)):
@@ -200,15 +199,6 @@ def one_time_init():
     with open('stopwords.pickle', 'wb') as handle:
         pickle.dump(stopwords.words("english"),
                     handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-
-if __name__ == "__main__":
-    # print("hello bag of words , lets do this IML!!!!!!!")
-    print()
-    print(get_words(cleanse_raw(['aa aa aa!'])))
-    haaretz = prepare_data('data/haaretz.csv', False)
-    israel = prepare_data('data/israelhayom.csv', False)
-    majors = find_majors(300, haaretz, israel)
 
 
 
