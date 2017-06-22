@@ -11,25 +11,63 @@ import pickle
 import data.getData
 import operator
 
+
 # magic numbers
 HAARETZ = 0
 ISRAEL_HAYOM = 1
 
 
+def normalize_words(words):
+    """
+    stem the words into normalized form
+    :param words: python list
+    :return: python list of normalized words
+    """
+    normalized = []
+    stemmer = SnowballStemmer("english")
+    for word in words:
+        normalized.append(stemmer.stem(word))
+    return normalized
+
+def cleanse_raw(data):
+    """
+    cleaning all irrelevant characters from data but for small letter.
+    :param data: python list (CHANGES THE GIVEN DATA)
+    :return: the data cleansed.
+    """
+    for i in range(len(data)):
+        letters_only = re.sub("[^a-zA-Z]", " ", data[i])
+        lower_case = letters_only.lower()
+        data[i] = lower_case
+    return data
+
+def get_words(self, sentences):
+    """
+    split each sentence into words, and returns merged list
+    of all words from all sentences, with duplicates.
+    :param sentences: python list
+    :return: python list of words (with duplicates)
+    """
+    words = []
+    for sentence in sentences:
+        words.extend(sentence.split())
+    return words
+
 class bagOfWords:
     def __init__(self):
-        haaretz = self.prepare_data('data/haaretz.csv', False)
-        israel = self.prepare_data('data/israelhayom.csv', False)
-        majors = self.find_majors(300, haaretz, israel)
-        haaretz_avg, israel_avg = self.find_average_word_length()
+        self.haaretz = self.prepare_data('data/haaretz.csv', False)
+        self.israel = self.prepare_data('data/israelhayom.csv', False)
+        self.majors = self.find_majors(300, self.haaretz, self.israel)
+        self.haaretz_avg, self.israel_avg = self.find_average_word_length(self.haaretz, self.israel)
 
     def generate_maj_features(self, sentence):
+        print(sentence)
         features_vec = np.zeros(len(self.majors))
         table = {}
         for i in range(len(self.majors)):
-            table[majors] = i
+            table[self.majors[i]] = i
         for word in sentence.split():
-            if word in majors:
+            if word in self.majors:
                 features_vec[table[word]] += 1
         max_w = np.max(features_vec)
         if max_w != 0:
@@ -44,7 +82,7 @@ class bagOfWords:
             count += 1
         if count != 0:
             avg /= count
-        return list(avg)
+        return [avg]
 
     def cleanse_raw(self, data):
         """

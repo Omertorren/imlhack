@@ -48,7 +48,7 @@ model.compile(loss='binary_crossentropy',
 print('Train...')
 model.fit(x_train, y_train,
           batch_size=batch_size,
-          epochs=5,
+          epochs=10,
           validation_data=(x_test, y_test))
 
 model_json = model.to_json()
