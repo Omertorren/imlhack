@@ -10,7 +10,7 @@ def getNormalData():
     return a,b
 
 def getWord():
-    return open("a.txt","r").read().split(',')
+    return open("data/a.txt", "r").read().split(',')
 
 from bagOfWords import normalize_words
 def normalSentence(sent):

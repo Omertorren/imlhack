@@ -8,6 +8,7 @@ import numpy as np
 import nltk
 from nltk.stem import *
 import pickle
+import data.getData
 
 # magic numbers
 HAARETZ = 0
@@ -75,21 +76,27 @@ def normalize_words(words):
     return normalized
 
 
-def prepare_data():
-    with open("haaretz.csv", 'r') as file:
+def prepare_data(path):
+    with open(path, 'r') as file:
         # massaging words
         all_data_raw = file.readlines()
+        all_data_raw = all_data_raw[:len(all_data_raw)*0.8]
         all_data_raw = cleanse_raw(all_data_raw)
         all_words = get_words(all_data_raw)
         all_words = ignore_irrelevant_words(all_words)
         all_words = normalize_words(all_words)
+        return all_words
+        # add taging:   //not needed...
+        # haaretz = np.array(all_words)
+        # haaretz = np.vstack((haaretz, np.zeros(haaretz.shape[0]) + HAARETZ))
+        # haaretz = haaretz.transpose()
 
-        # add taging:
-        haaretz = np.array(all_data_raw)
-        haaretz = np.vstack((haaretz, np.zeros(haaretz.shape[0]) + HAARETZ))
-        haaretz = haaretz.transpose()
-    return haaretz
-    # todo read from israel_hayom
+
+def preprocess():
+    eng_dictionary = data.getData.getWord()
+    haaretz = prepare_data('data/haaretz.csv')
+    israel= prepare_data('data/israelhayom.csv')
+
 
 
 def load_stopwords(path):
@@ -105,7 +112,6 @@ def load_stopwords(path):
 
 if __name__ == "__main__":
     # print("hello bag of words , lets do this IML!!!!!!!")
-    print(load_stopwords('stopwords.pickle'))
     print()
     print(get_words(cleanse_raw(['aa aa aa!'])))
     train = prepare_data()
