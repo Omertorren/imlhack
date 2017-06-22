@@ -3,9 +3,10 @@ from bagOfWords import *
 from simplifiedBag import *
 from sklearn.model_selection import cross_val_score
 from sklearn import svm
+from omerBestFeatures import *
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor, ExtraTreeClassifier, ExtraTreeRegressor
 bg = bagOfWords(1000)
-foos = [bg.generate_maj_features, bg.generate_word_len_avg_feature, sentence_len_feature]
+foos = [bg.generate_maj_features, bg.generate_word_len_avg_feature, sentence_len_feature, myBag]
 initFoos = [j_init]
 models = ["SVCSpecial","SVC", "LinearSVC", "LinearSVR","NuSCR","NuSVC", "TreeRegress","TreeClass","ExTreeClass","ExTreeRegress"]
 algos = [

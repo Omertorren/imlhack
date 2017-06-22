@@ -73,6 +73,9 @@ class bagOfWords:
             features_vec /= max_w
         return list(features_vec)
 
+    def getAllWords(self):
+        return self.haaretz + self.israel
+
     def generate_word_len_avg_feature(self, sentence):
         avg = 0
         count = 0
