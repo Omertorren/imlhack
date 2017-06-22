@@ -54,10 +54,10 @@ def get_words(self, sentences):
     return words
 
 class bagOfWords:
-    def __init__(self):
+    def __init__(self, k=300):
         self.haaretz = self.prepare_data('data/haaretz.csv', False)
         self.israel = self.prepare_data('data/israelhayom.csv', False)
-        self.majors = self.find_majors(300, self.haaretz, self.israel)
+        self.majors = self.find_majors(k, self.haaretz, self.israel)
         self.haaretz_avg, self.israel_avg = self.find_average_word_length(self.haaretz, self.israel)
 
     def generate_maj_features(self, sentence):
