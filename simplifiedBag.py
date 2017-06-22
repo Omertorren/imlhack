@@ -104,7 +104,7 @@ def j_init():
 
 def sentence_len_feature(sentence):
     sentence = cleanse_raw([sentence])
-    sentence = normalize_words((get_words(sentence)))
+    sentence = normalize_words(get_words(sentence))
     sent_len = len(sentence)
     if sent_len > mids:
         return [0]
