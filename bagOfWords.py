@@ -2,6 +2,8 @@ import os
 import re
 import numpy as np
 import nltk
+from nltk.stem import *
+import pickle
 
 # magic numbers
 HAARETZ = 0
@@ -34,6 +36,18 @@ def get_words(sentences):
     return words
 
 
+def ignore_irrelevant_words(words):
+    return [w for w in words if not w in stopwords.words("english")]
+
+
+def normalize_words(words):
+    normalized = []
+    stemmer = SnowballStemmer("english")
+    for word in words:
+        normalize.append(stemmer.stem(word))
+    return normalized
+
+
 def prepare_data():
     with open("haaretz.csv", 'r') as file:
         all_data_raw = file.readlines()
@@ -46,9 +60,24 @@ def prepare_data():
     # todo read from israel_hayom
 
 
+def load_stopwords(path):
+    with open(path, 'rb') as handle:
+        b = pickle.load(handle)
+    return b
+
+
+def one_time_init():
+    # nltk.download()
+    from nltk.corpus import stopwords
+    with open('stopwords.pickle', 'wb') as handle:
+        pickle.dump(stopwords.words("english"),
+                    handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+
 if __name__ == "__main__":
     # print("hello bag of words , lets do this IML!!!!!!!")
-    nltk.download()
+    print(load_stopwords('stopwords.pickle'))
     print()
     print(get_words(cleanse_raw(['aa aa aa!'])))
     train = prepare_data()
