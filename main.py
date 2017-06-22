@@ -8,14 +8,15 @@ bg = bagOfWords(1000)
 foos = [bg.generate_maj_features, bg.generate_word_len_avg_feature, sentence_len_feature]
 initFoos = [j_init]
 models = ["SVCSpecial","SVC", "LinearSVC", "LinearSVR","NuSCR","NuSVC", "TreeRegress","TreeClass","ExTreeClass","ExTreeRegress"]
-algos = [svm.SVC(probability=True, random_state=0),
-         svm.SVC(),
-         svm.LinearSVC(),
-         svm.NuSVC(),
-         DecisionTreeRegressor(),
-         DecisionTreeClassifier(),
-         ExtraTreeClassifier(),
-         ExtraTreeRegressor()]
+algos = [
+        # svm.SVC(probability=True, random_state=0),
+         # svm.SVC(),
+         # svm.LinearSVC(),
+         # svm.NuSVC(),
+         DecisionTreeRegressor(random_state=0),
+         DecisionTreeClassifier(random_state=0),
+         ExtraTreeClassifier(random_state=0),
+         ExtraTreeRegressor(random_state=0)]
 
 def getElems():
     tr,te,val = getTrainingData()
@@ -39,9 +40,11 @@ def modelSelection():
     xxx,yyy = val
     i = 1
     for algo in algos:
-        print ("##### Running model number %s we are on %s"%(i, models[i-1]))
+        print ("##### Running model number %s we are on %s ######"%(i, models[i-1]))
         algo.fit(x,y)
-        print(cross_val_score(algo,xx,yy,scoring="accuracy"))
+        pred = algo.predict(te[0])
+        scores = sum([0 if circ(pred[i]) == y[i] else 1 for i in range(len(pred))]) / len(pred)
+        print(scores)
         i+=1
 
 def init():
@@ -49,5 +52,6 @@ def init():
         foo()
     print("##### INIT Completed ######")
 
+circ = lambda x:1 if x>0.5 else 0
 init()
 modelSelection()
