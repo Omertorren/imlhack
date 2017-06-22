@@ -15,7 +15,7 @@ from sklearn.model_selection import GridSearchCV
 pipe = Pipeline([('vect', CountVectorizer(stop_words="english", analyzer="word", max_features=5000)),
                       ('tfidf', TfidfTransformer()),
                       ])
-svr = GridSearchCV(MultinomialNB(class_prior=None, fit_prior=True), cv=5,
+svr = GridSearchCV(MultinomialNB(class_prior=None, fit_prior=True),
                    param_grid={"alpha": [0.2,0.5,1.0]})
 
 
