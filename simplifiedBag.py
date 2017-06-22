@@ -94,12 +94,40 @@ def j_init():
     i_train = israel_hayom_list[:int((len(israel_hayom_list) / 10) * 8)]
 
     # starting with 1 for haaretz today.
-    counter_for_dictionary(i_train, 1, weight, stemmer)
-    counter_for_dictionary(h_train, -1, weight, stemmer)
-    normalize_weights(weight)
+    counter_for_dictionary(i_train, 1, stemmer)
+    counter_for_dictionary(h_train, -1, stemmer)
+    normalize_weights()
     ilen, hlen = avarage_length(i_train, h_train)
-    weights = weight
     mids = (ilen + hlen) / 2
+#######
+    h_count = 0
+    h_half = 0
+    h_wrong = 0
+    for i in h_validate:
+        val = sentence_sum_feature(i)[0]
+        if val < 0.5:
+            h_count += 1
+        elif val == 0.5:
+            h_half += 1
+        elif val > 0.5:
+            h_wrong += 1
+
+    i_count = 0
+    i_half = 0
+    i_wrong = 0
+    for j in i_validate:
+        val = sentence_sum_feature(j)[0]
+        if val > 0.5:
+            i_count += 1
+        elif val == 0.5:
+            i_half += 1
+        elif val < 0.5:
+            i_wrong += 1
+
+    print("rights  |overallsize |wrongs|   non-dicidable")
+    print(i_count, "   ", len(i_validate), "         ", i_wrong, "    ", i_half)
+    print(h_count, "   ", len(h_validate), "         ", h_wrong, "    ", h_half)
+    return weight, mids
 
 
 def sentence_len_feature(sentence):
@@ -112,7 +140,6 @@ def sentence_len_feature(sentence):
         return [1]
     else:
         return [0]
-
 
         # stemmer = SnowballStemmer("english")
         # word_list = getWord()
@@ -165,14 +192,15 @@ def sentence_len_feature(sentence):
         #         i_wrong += 1
 
 
-        # if __name__ == '__main__':
-        #     dicter, ilen, hlen = j_weights()
+if __name__ == '__main__':
+    j_init()
 
-        # for j in i_validate:
-        # print("rights  |overallsize |wrongs|   non-dicidable")
-        # print(i_count, "   ", len(i_validate), "         ", i_wrong, "    ", i_half)
-        # print(h_count, "   ", len(h_validate), "         ", h_wrong, "    ", h_half)
+# for j in i_validate:
+#
+# print("rights  |overallsize |wrongs|   non-dicidable")
+# print(i_count, "   ", len(i_validate), "         ", i_wrong, "    ", i_half)
+# print(h_count, "   ", len(h_validate), "         ", h_wrong, "    ", h_half)
 
-        ###### avg length  :
-        # for j in i_train:
-        #     print()
+###### avg length  :
+# for j in i_train:
+#     print()
