@@ -1,168 +1,75 @@
-import json
-import urllib.request
-from data.getData import getData
+'''Train a recurrent convolutional network on the IMDB sentiment
+classification task.
+Gets to 0.8498 test accuracy after 2 epochs. 41s/epoch on K520 GPU.
+'''
+from __future__ import print_function
 
-# k = "http://api.wibbitz.com/clips/latest/?items=2000&orderedchannel=False&publisherid=92"
-# webURL = urllib.request.urlopen(k)
-# web = webURL.read().decode("utf-8")
-# d = json.loads(web)
-# t = set()
-# articles = list(map(lambda x: x['title'], d))
-# s = "http://www.haaretz.com/json/cmlink/7.1349843?vm=viewMode&pidx="
-# ss = "&url=http%3A%2F%2Fwww.haaretz.com%2Fisrael-news&dataExtended=%7B%22contentId%22%3A%22%22%7D"
-#
-# for i in range(1,10):
-#     webURL = urllib.request.urlopen(s+"%s"%i+ss)
-#     web = webURL.read().decode("utf-8")
-#     d = json.loads(web)
-#     articles += list(map(lambda x:x['title'], d['items']))
-#     print(i)
-#
-#
-# for i in articles:
-#     t.add(i)
-#
+from keras.preprocessing import sequence
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Activation
+from keras.layers import Embedding
+from keras.layers import LSTM
+from keras.layers import Conv1D, MaxPooling1D
+from keras.datasets import imdb
 
-# fk = open('haaretz.csv','r')
-# f = open('haaretzMine.csv','r')
-# t = set()
-# a = f.read().split("\n")
-# b = fk.read().split("\n")
-#
-# a = set(a+b)
-# k = open("haaretzfinal.csv","w")
-# k.write("\n".join(a))
-import re
-import time
-testush = re.compile('font-size:16px;">(.+?)<')
-a = []
-k = [
-{
-    "domain": ".israelhayom.com",
-    "expirationDate": 1561220273,
-    "hostOnly": False,
-    "httpOnly": False,
-    "name": "__utma",
-    "path": "/",
-    "sameSite": "no_restriction",
-    "secure": False,
-    "session": False,
-    "storeId": "0",
-    "value": "196792756.3852388503.1498147202.1498147202.1498147202.1",
-    "id": 1
-},
-{
-    "domain": ".israelhayom.com",
-    "expirationDate": 1498150073,
-    "hostOnly": False,
-    "httpOnly": False,
-    "name": "__utmb",
-    "path": "/",
-    "sameSite": "no_restriction",
-    "secure": False,
-    "session": False,
-    "storeId": "0",
-    "value": "196792756.1.10.1498148273",
-    "id": 2
-},
-{
-    "domain": ".israelhayom.com",
-    "hostOnly": False,
-    "httpOnly": False,
-    "name": "__utmc",
-    "path": "/",
-    "sameSite": "no_restriction",
-    "secure": False,
-    "session": True,
-    "storeId": "0",
-    "value": "196792756",
-    "id": 3
-},
-{
-    "domain": ".israelhayom.com",
-    "expirationDate": 1498148452,
-    "hostOnly": False,
-    "httpOnly": False,
-    "name": "__utmt",
-    "path": "/",
-    "sameSite": "no_restriction",
-    "secure": False,
-    "session": False,
-    "storeId": "0",
-    "value": "1",
-    "id": 4
-},
-{
-    "domain": ".israelhayom.com",
-    "expirationDate": 1513916273,
-    "hostOnly": False,
-    "httpOnly": False,
-    "name": "__utmz",
-    "path": "/",
-    "sameSite": "no_restriction",
-    "secure": False,
-    "session": False,
-    "storeId": "0",
-    "value": "196792756.1498147202.1.1.utmcsr=israelhayom.co.il|utmccn=(referral)|utmcmd=referral|utmcct=/",
-    "id": 5
-},
-{
-    "domain": ".israelhayom.com",
-    "expirationDate": 1498190401,
-    "hostOnly": False,
-    "httpOnly": False,
-    "name": "rbzid",
-    "path": "/",
-    "sameSite": "no_restriction",
-    "secure": False,
-    "session": False,
-    "storeId": "0",
-    "value": "dzJJOXdTc096cEN2aThZS1kxOEh4RTR4UVU1dTZaOEZudWlmOVBWOVEwaERWK1p5ZGs3Z0thSnJBN2ZtTmQ0TVhUcTBSaFJCdTRpTXIzNHZCKzRXV1FYaGswMG1LYjVmaVRSdk1BWUMwelJtY2V1b2NEcHJPZkpzUUZXOHh6YjVnWFZPNE5kVU5pMmV0MENxVHJHM082QmJLZWpPRFJnM0lhc0o5YVhQMGhFRmxrdU5scm5ERjF2Z2N3OExuODB3d3Z5anlBeDZCOGpOYmhQNFNPdnBMWWIrSmlkL01NNG1mRHpLblpLaU56dz1AQEAwQEBALTIyMjIyMjIyMDIw",
-    "id": 6
-},
-{
-    "domain": "www.israelhayom.com",
-    "hostOnly": True,
-    "httpOnly": False,
-    "name": "PHPSESSID",
-    "path": "/",
-    "sameSite": "no_restriction",
-    "secure": False,
-    "session": True,
-    "storeId": "0",
-    "value": "k3jsfmca55fp49ngjhhicefih6",
-    "id": 7
-},
-{
-    "domain": "www.israelhayom.com",
-    "hostOnly": True,
-    "httpOnly": False,
-    "name": "TS0195b45d",
-    "path": "/",
-    "sameSite": "no_restriction",
-    "secure": False,
-    "session": True,
-    "storeId": "0",
-    "value": "01e361497cb2ec7cd96ebf67eea3a9ba01afd65add507b1c32a962999d50646fb3e784336cc396be59b59f491894e220014fe479a4",
-    "id": 8
-}
-]
-import requests
-cookies = {a['name']:a['value'] for a in k}
-for i in range(3171,3150,-1):
-    print("http://www.israelhayom.com/site/today.php?id=%s"%i)
-    webURL = requests.get("http://www.israelhayom.com/site/today.php?id=%s"%i, cookies=cookies)
-    web = webURL.text
-    m = re.findall(testush,web)
-    if(len(m) == 0):
-        print(web)
-    print("found %s lines!"%(len(m)))
-    for k in m:
-        print(k)
-        a.append(k)
-    time.sleep(0.5)
+# Embedding
+max_features = 20000
+maxlen = 100
+embedding_size = 128
 
-f = open("ih.csv","w")
-f.write("\n".join(a))
+# Convolution
+kernel_size = 5
+filters = 64
+pool_size = 4
 
+# LSTM
+lstm_output_size = 70
 
+# Training
+batch_size = 30
+epochs = 2
+
+'''
+Note:
+batch_size is highly sensitive.
+Only 2 epochs are needed as the dataset is very small.
+'''
+
+print('Loading data...')
+(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=max_features)
+print(len(x_train), 'train sequences')
+print(len(x_test), 'test sequences')
+
+print('Pad sequences (samples x time)')
+x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
+x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
+print('x_train shape:', x_train.shape)
+print('x_test shape:', x_test.shape)
+
+print('Build model...')
+
+model = Sequential()
+model.add(Embedding(max_features, embedding_size, input_length=maxlen))
+model.add(Dropout(0.25))
+model.add(Conv1D(filters,
+                 kernel_size,
+                 padding='valid',
+                 activation='relu',
+                 strides=1))
+model.add(MaxPooling1D(pool_size=pool_size))
+model.add(LSTM(lstm_output_size))
+model.add(Dense(1))
+model.add(Activation('sigmoid'))
+
+model.compile(loss='binary_crossentropy',
+              optimizer='adam',
+              metrics=['accuracy'])
+
+print('Train...')
+model.fit(x_train, y_train,
+          batch_size=batch_size,
+          epochs=epochs,
+          validation_data=(x_test, y_test))
+score, acc = model.evaluate(x_test, y_test, batch_size=batch_size)
+print('Test score:', score)
+print('Test accuracy:', acc)
