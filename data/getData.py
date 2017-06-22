@@ -1,8 +1,9 @@
 def getData():
-    haaretz = open("haaretz.csv", "r").read().split("\n")
-    israelHayom = open("israelhayom.csv","r").read().split("\n")
+    haaretz = open("data/haaretz.csv", "r").read().split("\n")
+    israelHayom = open("data/israelhayom.csv", "r").read().split("\n")
+    # israelHayom=[] # todo remove
     return haaretz, israelHayom
 
 
 def getWord():
-    return open("a.txt","r").read().split(',')
+    return open("data/a.txt", "r").read().split(',')
