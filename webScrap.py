@@ -1,42 +1,30 @@
-'''Train a recurrent convolutional network on the IMDB sentiment
-classification task.
-Gets to 0.8498 test accuracy after 2 epochs. 41s/epoch on K520 GPU.
-'''
 from __future__ import print_function
-
+from keras.preprocessing import text as ktxt
+from data.getData import *
+import random
 from keras.preprocessing import sequence
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation
-from keras.layers import Embedding
+from keras.layers import Dense, Embedding
 from keras.layers import LSTM
-from keras.layers import Conv1D, MaxPooling1D
-from keras.datasets import imdb
 
-# Embedding
+tknizer = ktxt.Tokenizer(num_words=None, filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',lower=True, split=" ", char_level=False)
+a,b = getData()
+
+# a = [normalSentence(x) for x in a]
+# b = [normalSentence(x) for x in b]
+tknizer.fit_on_texts(a+b)
+a = tknizer.texts_to_sequences(a)
+b = tknizer.texts_to_sequences(b)
+sents = [[x,1] for x in a] + [[x,0] for x in b]
+random.shuffle(sents)
+x_train, y_train = [x[0] for x in sents[:5200]], [x[1] for x in sents[:5200]]
+x_test, y_test = [x[0] for x in sents[5201:]], [x[1] for x in sents[5201:]]
+
 max_features = 20000
-maxlen = 100
-embedding_size = 128
-
-# Convolution
-kernel_size = 5
-filters = 64
-pool_size = 4
-
-# LSTM
-lstm_output_size = 70
-
-# Training
-batch_size = 30
-epochs = 2
-
-'''
-Note:
-batch_size is highly sensitive.
-Only 2 epochs are needed as the dataset is very small.
-'''
+maxlen = 80  # cut texts after this number of words (among top max_features most common words)
+batch_size = 32
 
 print('Loading data...')
-(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=max_features)
 print(len(x_train), 'train sequences')
 print(len(x_test), 'test sequences')
 
@@ -47,20 +35,12 @@ print('x_train shape:', x_train.shape)
 print('x_test shape:', x_test.shape)
 
 print('Build model...')
-
 model = Sequential()
-model.add(Embedding(max_features, embedding_size, input_length=maxlen))
-model.add(Dropout(0.25))
-model.add(Conv1D(filters,
-                 kernel_size,
-                 padding='valid',
-                 activation='relu',
-                 strides=1))
-model.add(MaxPooling1D(pool_size=pool_size))
-model.add(LSTM(lstm_output_size))
-model.add(Dense(1))
-model.add(Activation('sigmoid'))
+model.add(Embedding(max_features, 50))
+model.add(LSTM(50, dropout=0.05, recurrent_dropout=0.05))
+model.add(Dense(1, activation='tanh'))
 
+# try using different optimizers and different optimizer configs
 model.compile(loss='binary_crossentropy',
               optimizer='adam',
               metrics=['accuracy'])
@@ -68,8 +48,17 @@ model.compile(loss='binary_crossentropy',
 print('Train...')
 model.fit(x_train, y_train,
           batch_size=batch_size,
-          epochs=epochs,
+          epochs=5,
           validation_data=(x_test, y_test))
-score, acc = model.evaluate(x_test, y_test, batch_size=batch_size)
+
+model_json = model.to_json()
+with open("model.json", "w") as json_file:
+    json_file.write(model_json)
+# serialize weights to HDF5
+model.save_weights("model.h5")
+print("Saved model to disk")
+
+score, acc = model.evaluate(x_test, y_test,
+                            batch_size=batch_size)
 print('Test score:', score)
 print('Test accuracy:', acc)
