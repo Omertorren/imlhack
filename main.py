@@ -3,21 +3,27 @@ from bagOfWords import *
 from simplifiedBag import *
 from sklearn.model_selection import cross_val_score
 from sklearn import svm
+from sklearn.naive_bayes import MultinomialNB
 from omerBestFeatures import *
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor, ExtraTreeClassifier, ExtraTreeRegressor
+import numpy as np
+from sklearn.pipeline import Pipeline
 bg = bagOfWords(1000)
 foos = [bg.generate_maj_features, bg.generate_word_len_avg_feature, sentence_len_feature, myBag]
+foos = [myBag]
 initFoos = [j_init]
 models = ["SVCSpecial","SVC", "LinearSVC", "LinearSVR","NuSCR","NuSVC", "TreeRegress","TreeClass","ExTreeClass","ExTreeRegress"]
 algos = [
-         svm.SVC(probability=True, random_state=0),
-         svm.SVC(),
-         svm.LinearSVC(),
-         svm.NuSVC(),
-         DecisionTreeRegressor(random_state=0),
-         DecisionTreeClassifier(random_state=0),
-         ExtraTreeClassifier(random_state=0),
-         ExtraTreeRegressor(random_state=0)]
+        MultinomialNB()
+         # svm.SVC(gamma=0.01,C=10,kernel='poly'),
+         # svm.SVC(),
+         # svm.LinearSVC(),
+         # svm.NuSVC(),
+         # DecisionTreeRegressor(random_state=0),
+         # DecisionTreeClassifier(random_state=0),
+         # ExtraTreeClassifier(random_state=0),
+         # ExtraTreeRegressor(random_state=0)
+]
 
 def getElems():
     tr,te,val = getTrainingData()
@@ -28,9 +34,8 @@ def getElems():
 
 
 def sentToFeat(sent):
-    x = []
     for foo in foos:
-        x += foo(sent)
+        x = foo(sent)
     return x
 
 def modelSelection():
@@ -42,7 +47,7 @@ def modelSelection():
     i = 1
     for algo in algos:
         print ("##### Running model number %s we are on %s ######"%(i, models[i-1]))
-        algo.fit(x,y)
+        clf = algo.fit(x,y)
         pred = algo.predict(xx)
         scores = sum([0 if circ(pred[i]) == yy[i] else 1 for i in range(len(pred))]) / len(pred)
         print("Score for test data%s"%scores)
@@ -57,6 +62,7 @@ def init():
         foo()
     print("##### INIT Completed ######")
 
-circ = lambda x:1 if x>0.5 else 0
-init()
-modelSelection()
+# circ = lambda x:1 if x>0.5 else 0
+# init()
+# modelSelection()
+
