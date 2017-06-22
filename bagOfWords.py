@@ -1,4 +1,8 @@
-import os
+"""
+Bag of words features extractions for IML hackathon.
+Please attach stopwords.pickle with this file.
+"""
+
 import re
 import numpy as np
 import nltk
@@ -8,6 +12,18 @@ import pickle
 # magic numbers
 HAARETZ = 0
 ISRAEL_HAYOM = 1
+
+
+def one_time_init():
+    """
+    shouldnt be ran, just for our use in gathering data, and
+     for the checkers to see how we aquired it.
+    """
+    nltk.download()
+    from nltk.corpus import stopwords
+    with open('stopwords.pickle', 'wb') as handle:
+        pickle.dump(stopwords.words("english"),
+                    handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def cleanse_raw(data):
@@ -37,22 +53,38 @@ def get_words(sentences):
 
 
 def ignore_irrelevant_words(words):
-    return [w for w in words if not w in stopwords.words("english")]
+    """
+    ignores the words that are irrelevant such as a, or , and, the..
+    :param words: python list
+    :return: python list of relevant words
+    """
+    ignore_us = load_stopwords("stopwords.pickle")
+    return [w for w in words if not w in ignore_us]
 
 
 def normalize_words(words):
+    """
+    stem the words into normalized form
+    :param words: python list
+    :return: python list of normalized words
+    """
     normalized = []
     stemmer = SnowballStemmer("english")
     for word in words:
-        normalize.append(stemmer.stem(word))
+        normalized.append(stemmer.stem(word))
     return normalized
 
 
 def prepare_data():
     with open("haaretz.csv", 'r') as file:
+        # massaging words
         all_data_raw = file.readlines()
         all_data_raw = cleanse_raw(all_data_raw)
         all_words = get_words(all_data_raw)
+        all_words = ignore_irrelevant_words(all_words)
+        all_words = normalize_words(all_words)
+
+        # add taging:
         haaretz = np.array(all_data_raw)
         haaretz = np.vstack((haaretz, np.zeros(haaretz.shape[0]) + HAARETZ))
         haaretz = haaretz.transpose()
@@ -61,18 +93,14 @@ def prepare_data():
 
 
 def load_stopwords(path):
+    """
+    loads the stopwords that can be ignored.
+    :param path:  usually "stopwords.pickle"
+    :return:
+    """
     with open(path, 'rb') as handle:
         b = pickle.load(handle)
     return b
-
-
-def one_time_init():
-    # nltk.download()
-    from nltk.corpus import stopwords
-    with open('stopwords.pickle', 'wb') as handle:
-        pickle.dump(stopwords.words("english"),
-                    handle, protocol=pickle.HIGHEST_PROTOCOL)
-
 
 
 if __name__ == "__main__":
