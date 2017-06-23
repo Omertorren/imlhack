@@ -1,5 +1,5 @@
 def getData():
-    haaretz = open("data/haaretz.csv", "r").read().split("\n")
+    haaretz = open("data/haaretzfinal.csv", "r").read().split("\n")
     israelHayom = open("data/israelhayom.csv","r").read().split("\n")
     return haaretz, israelHayom
 
@@ -8,6 +8,7 @@ def getNormalData():
     a = [normalSentence(x) for x in a]
     b = [normalSentence(x) for x in b]
     return a,b
+
 from bagOfWords import bagOfWords
 def getAllWords():
     return bagOfWords(200).getAllWords()
