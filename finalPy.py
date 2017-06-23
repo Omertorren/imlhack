@@ -17,8 +17,8 @@ class modelGever():
         self.svr = joblib.load(filename)
 
     def evaluate(self,sent):
-        p = self.pipe.transform(sent)
-        predict = self.svr.predict([p])
+        p = self.pipe.transform([sent])
+        predict = self.svr.predict(p)
         k = True in list(map(lambda x:sent in x, self.wrds))
         return predict
 
