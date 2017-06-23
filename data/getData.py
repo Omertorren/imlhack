@@ -1,5 +1,5 @@
 def getData():
-    haaretz = open("data/haaretzfinal.csv", "r").read().split("\n")
+    haaretz = open("data/haaretz.csv", "r").read().split("\n")
     israelHayom = open("data/israelhayom.csv","r").read().split("\n")
     return haaretz, israelHayom
 

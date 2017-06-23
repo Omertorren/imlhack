@@ -11,24 +11,36 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import *
 
-pipe = Pipeline([('vect', CountVectorizer()),
-                      ('tfidf', TfidfTransformer()),
-                      ])
+pipe = Pipeline([('vect', CountVectorizer(analyzer="word",
+
+                                          max_df=1.0,
+
+                                          ngram_range=(1,2))),
+
+                      ('tfidf', TfidfTransformer(norm='l2'))])
+
 svr = GridSearchCV(SGDClassifier(),
-                   param_grid={"alpha":[0.0001],
-                               "loss":["log"],
-                               "penalty":["l2"]})
+
+                   param_grid={"alpha": [0.0001],
+
+                               "loss": ['log'],
+
+                               "penalty": ['l2'],
+
+                               "n_iter": [2,5, 10],
+
+                               "random_state": [42]})
 
 from sklearn.externals import joblib
 # save the classifier
 
 a,b,c = getTrainingData()
-# x = pipe.fit_transform(a[0],a[1])
-# svr.fit(x,a[1])
+x = pipe.fit_transform(a[0],a[1])
+svr.fit(x,a[1])
 pipename = "pipe.mdl"
 filename = "model.mdl"
-pipe = joblib.load(pipename)
-svr = joblib.load(filename)
+# pipe = joblib.load(pipename)
+# svr = joblib.load(filename)
 predicted = svr.predict(pipe.transform(b[0]))
 predicted[predicted > 0.5] = 1
 predicted[predicted <= 0.5] = 0
@@ -40,5 +52,5 @@ print(np.mean(predicted == c[1]))
 strt = "Terrorist kills 13-year-old in her bedroom in Kiryat Arba"
 k = pipe.transform([strt])
 print(svr.predict(k))
-# joblib.dump(pipe,pipename,compress=9)
-# joblib.dump(svr,filename,compress=9)
+joblib.dump(pipe,pipename,compress=9)
+joblib.dump(svr,filename,compress=9)
