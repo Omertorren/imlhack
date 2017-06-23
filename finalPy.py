@@ -19,6 +19,6 @@ class modelGever():
     def evaluate(self,sent):
         p = self.pipe.transform(sent)
         predict = self.svr.predict([p])
-        k = True in list(map(lambda x:sent in x))
+        k = True in list(map(lambda x:sent in x, self.wrds))
         return predict
 
