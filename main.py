@@ -62,7 +62,7 @@ def init():
         foo()
     print("##### INIT Completed ######")
 
-# circ = lambda x:1 if x>0.5 else 0
-# init()
-# modelSelection()
+circ = lambda x:1 if x>0.5 else 0
+init()
+modelSelection()
 
