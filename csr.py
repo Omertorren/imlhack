@@ -1,6 +1,5 @@
 from scipy.sparse import csr_matrix
 import numpy as np
-# reformulating csr_matrix to re-trigger PM
 
 row = np.array([0, 0, 1, 2, 2, 2])
 col = np.array([0, 2, 2, 0, 1, 2])
